@@ -2,7 +2,6 @@ from modules.user import User
 from modules.auction import Auction
 
 class AuctionManager:
-
     def __init__(self):
         self.users = []
         self.auctions = []
@@ -12,8 +11,8 @@ class AuctionManager:
         self.users.append(user)
         return user
 
-    def create_auction(self, item, price):
-        auction = Auction(item, price)
+    def create_auction(self, item, price, duration=30):
+        auction = Auction(item, price, duration)
         self.auctions.append(auction)
         return auction
 
@@ -23,9 +22,5 @@ class AuctionManager:
     def user_leaderboard(self):
         return sorted(self.users, key=lambda u: u.wins, reverse=True)
 
-    def print_users(self):
-        for user in self.users:
-            print(f"{user.name} - Balance: ${user.balance:.2f}, Wins: {user.wins}")
-
-    def list_auctions(self):
-        return [str(a) for a in self.auctions]
+    def get_user(self, name):
+        return next((u for u in self.users if u.name.lower() == name.lower()), None)
