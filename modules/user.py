@@ -1,17 +1,11 @@
 class User:
-    """Represents a user in the auction system."""
 
     def __init__(self, name: str, balance: float = 100.0):
-        """
-        Initialize a User.
-
-        Args:
-            name (str): The user's name.
-            balance (float): Starting balance for the user.
-        """
         self.name = name
         self.balance = balance
+        self.total_bids = 0
+        self.wins = 0
 
     def __str__(self):
-        return f"{self.name} (${self.balance})"
+        return f"{self.name} (${self.balance:.2f})"
 

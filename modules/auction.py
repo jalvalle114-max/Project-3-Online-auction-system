@@ -1,53 +1,56 @@
+from datetime import datetime
+
 class Bid:
-    """Represents a bid in an auction."""
+
     def __init__(self, user, amount):
         self.user = user
         self.amount = amount
+        self.time = datetime.now()
 
 class Auction:
-    """Represents a single auction."""
 
     def __init__(self, item: str, starting_price: float):
-        """
-        Initialize an Auction.
-
-        Args:
-            item (str): Item being auctioned.
-            starting_price (float): Minimum starting price.
-        """
         self.item = item
         self.starting_price = starting_price
         self.bids = []
 
     def place_bid(self, user, amount):
-        """Place a bid on the auction."""
-        highest_bid = self.bids[-1].amount if self.bids else self.starting_price
-        if amount > highest_bid:
-            if user.balance >= amount:
-                self.bids.append(Bid(user, amount))
-                print(f"Bid accepted: {user.name} bids ${amount}")
-            else:
-                print(f"{user.name} does not have enough balance for this bid.")
-        else:
-            print(f"Bid of ${amount} is too low. Current highest bid: ${highest_bid}")
+        highest_bid_amount = self.bids[-1].amount if self.bids else self.starting_price
+
+        if amount <= highest_bid_amount:
+            print(f"Bid too low. Must be higher than ${highest_bid_amount}")
+            return
+
+        if amount > user.balance:
+            print(f"{user.name} does not have enough balance.")
+            return
+
+        if self.bids:
+            self.bids[-1].user.balance += self.bids[-1].amount
+
+        user.balance -= amount
+        user.total_bids += 1
+        self.bids.append(Bid(user, amount))
+        print(f"{user.name} placed a bid of ${amount} on {self.item}")
 
     def close(self):
-        """Close the auction and return the winning bid (or None)."""
         if not self.bids:
+            print(f"No bids for {self.item}. No winner.")
             return None
-        return max(self.bids, key=lambda b: b.amount)
+        winner = max(self.bids, key=lambda b: b.amount)
+        winner.user.wins += 1
+        print(f"Auction '{self.item}' won by {winner.user.name} with ${winner.amount}")
+        return winner
+
+    def bid_history(self):
+        return [
+            f"{bid.user.name} bid ${bid.amount} at {bid.time.strftime('%H:%M:%S')}"
+            for bid in self.bids
+        ]
+
+    def current_highest(self):
+        return self.bids[-1].amount if self.bids else self.starting_price
 
     def __str__(self):
-        return f"Auction({self.item}, starting at ${self.starting_price})"
-
-        bid = Bid(user, amount)
-        self.bids.append(bid)
-        return True
-
-    def highest_bid(self):
-        return max(self.bids, default=None)
-
-    def close(self):
-        """Close the auction and return winner."""
-        self.is_open = False
-        return self.highest_bid()
+        highest = self.current_highest()
+        return f"Auction({self.item}, Current Highest: ${highest})"
